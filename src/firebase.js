@@ -1,4 +1,5 @@
 import firebase from "firebase";
+
 const config = {
   apiKey: "AIzaSyD9fl5KF_3yWoBoNwSagDHCwdXDNmLC7pw",
   authDomain: "react-fireproj.firebaseapp.com",
@@ -10,4 +11,8 @@ const config = {
 };
 // Initialize Firebase
 firebase.initializeApp(config);
+
+export const provider = new firebase.auth.GoogleAuthProvider();
+export const auth = firebase.auth();
+
 export default firebase;

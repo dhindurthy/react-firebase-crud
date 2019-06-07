@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import firebase from "./firebase.js";
+// import firebase from "./firebase.js";
+import firebase, { auth, provider } from "./firebase.js";
 // import logo from './logo.svg';
 // import './App.css';
 
@@ -9,10 +10,13 @@ class Main extends Component {
     this.state = {
       currentItem: "",
       username: "",
-      items: []
+      items: [],
+      user: null // <-- add this line
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.login = this.login.bind(this); // <-- add this line
+    this.logout = this.logout.bind(this); // <-- add this line
   }
   handleChange(e) {
     this.setState({
@@ -36,7 +40,32 @@ class Main extends Component {
     const itemRef = firebase.database().ref(`/items/${itemId}`);
     itemRef.remove();
   }
+
+  logout() {
+    auth.signOut().then(() => {
+      this.setState({
+        user: null
+      });
+    });
+  }
+
+  login() {
+    auth.signInWithPopup(provider).then(result => {
+      const user = result.user;
+      this.setState({
+        user
+      });
+    });
+    // /https://css-tricks.com/firebase-react-part-2-user-authentication/
+    //for further setup in non-work envi
+  }
   componentDidMount() {
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        this.setState({ user });
+      }
+    });
+
     const itemsRef = firebase.database().ref("items");
     itemsRef.on("value", snapshot => {
       let items = snapshot.val();
@@ -95,6 +124,14 @@ class Main extends Component {
             </div>
           </section>
         </div>
+
+        {/* <div className="wrapper">
+          {this.state.user ? (
+            <button onClick={this.logout}>Log Out</button>
+          ) : (
+            <button onClick={this.login}>Log In</button>
+          )}
+        </div> */}
       </div>
     );
   }
