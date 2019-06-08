@@ -14,5 +14,11 @@ firebase.initializeApp(config);
 
 export const provider = new firebase.auth.GoogleAuthProvider();
 export const auth = firebase.auth();
+/**
+ * This involves enabling "Sign-in Method" for "Google" in
+ * firebase "Authentication"
+ * Also involves going to the gmail Google cloud console
+ * and authorize codesandbox.com in it
+ */
 
 export default firebase;

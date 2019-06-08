@@ -11,7 +11,7 @@ class Main extends Component {
       currentItem: "",
       username: "",
       items: [],
-      user: null // <-- add this line
+      user: { displayName: "", email: "" } // <-- add this line
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -26,9 +26,13 @@ class Main extends Component {
   handleSubmit(e) {
     e.preventDefault();
     const itemsRef = firebase.database().ref("items");
+    // const item = {
+    //   title: this.state.currentItem,
+    //   user: this.state.username
+    // };
     const item = {
       title: this.state.currentItem,
-      user: this.state.username
+      user: this.state.user.displayName || this.state.user.email
     };
     itemsRef.push(item);
     this.setState({
@@ -44,7 +48,7 @@ class Main extends Component {
   logout() {
     auth.signOut().then(() => {
       this.setState({
-        user: null
+        user: { displayName: null, email: null }
       });
     });
   }
@@ -56,16 +60,22 @@ class Main extends Component {
         user
       });
     });
-    // /https://css-tricks.com/firebase-react-part-2-user-authentication/
-    //for further setup in non-work envi
   }
+
   componentDidMount() {
     auth.onAuthStateChanged(user => {
       if (user) {
         this.setState({ user });
       }
     });
+    console.log(this.state.user);
+    /**
+     * fetch('https://api.mydomain.com')
+      .then(response => response.json())
+      .then(data => this.setState({ data }));
 
+      https://www.robinwieruch.de/react-fetching-data/
+     */
     const itemsRef = firebase.database().ref("items");
     itemsRef.on("value", snapshot => {
       let items = snapshot.val();
@@ -84,6 +94,7 @@ class Main extends Component {
   }
   //
   render() {
+    console.log(this.state.user.displayName);
     return (
       <div className="app">
         <div className="container">
@@ -92,20 +103,29 @@ class Main extends Component {
               <input
                 type="text"
                 name="username"
-                placeholder="What's your name?"
+                placeholder="Name?"
                 onChange={this.handleChange}
-                value={this.state.username}
+                value={this.state.user.displayName || this.state.user.email}
               />
               <input
                 type="text"
                 name="currentItem"
-                placeholder="What are you bringing?"
+                placeholder="Item?"
                 onChange={this.handleChange}
                 value={this.state.currentItem}
               />
               <button>Add Item</button>
             </form>
+            <br />
+            {/* <div className="wrapper">  */}
+            {this.state.user.displayName ? (
+              <button onClick={this.logout}>Log Out</button>
+            ) : (
+              <button onClick={this.login}>Log In</button>
+            )}
+            {/* </div> */}
           </section>
+
           <section className="display-item">
             <div className="wrapper">
               <ul>
@@ -113,10 +133,15 @@ class Main extends Component {
                   return (
                     <li key={item.id}>
                       <h3>{item.title}</h3>
-                      <p>brought by: {item.user}</p>
-                      <button onClick={() => this.removeItem(item.id)}>
-                        Remove Item
-                      </button>
+                      <p>
+                        brought by: {item.user}
+                        {item.user === this.state.user.displayName ||
+                        item.user === this.state.user.email ? (
+                          <button onClick={() => this.removeItem(item.id)}>
+                            Remove Item
+                          </button>
+                        ) : null}
+                      </p>
                     </li>
                   );
                 })}
@@ -124,14 +149,6 @@ class Main extends Component {
             </div>
           </section>
         </div>
-
-        {/* <div className="wrapper">
-          {this.state.user ? (
-            <button onClick={this.logout}>Log Out</button>
-          ) : (
-            <button onClick={this.login}>Log In</button>
-          )}
-        </div> */}
       </div>
     );
   }
