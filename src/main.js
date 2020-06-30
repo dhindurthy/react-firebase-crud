@@ -8,15 +8,22 @@ class Main extends Component {
   constructor() {
     super();
     this.state = {
+      broughtByValue: "",
       currentItem: "",
       username: "",
       items: [],
       user: { displayName: "", email: "" } // <-- add this line
     };
+    this.handleName = this.handleName.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.login = this.login.bind(this); // <-- add this line
     this.logout = this.logout.bind(this); // <-- add this line
+  }
+  handleName(e) {
+    this.setState({
+      broughtByValue: e.target.value
+    });
   }
   handleChange(e) {
     this.setState({
@@ -32,7 +39,9 @@ class Main extends Component {
     // };
     const item = {
       title: this.state.currentItem,
-      user: this.state.user.displayName || this.state.user.email
+      user: this.state.user.displayName
+        ? this.state.user.displayName
+        : this.state.broughtByValue
     };
     itemsRef.push(item);
     this.setState({
@@ -99,22 +108,27 @@ class Main extends Component {
       <div className="app">
         <div className="container">
           <section className="add-item">
-            <form onSubmit={this.handleSubmit}>
+            <form onSubmit={this.state.user.email ? this.handleSubmit : null}>
               <input
                 type="text"
                 name="username"
                 placeholder="Name?"
-                onChange={this.handleChange}
-                value={this.state.user.displayName || this.state.user.email}
+                onChange={this.handleName.bind(this)}
+                value={this.state.user.displayName || this.state.broughtByValue}
               />
               <input
                 type="text"
                 name="currentItem"
                 placeholder="Item?"
-                onChange={this.handleChange}
+                onChange={this.handleChange.bind(this)}
                 value={this.state.currentItem}
               />
-              <button>Add Item</button>
+              <button
+                disabled={!this.state.user.email}
+                className={!this.state.user.email ? "disabled" : ""}
+              >
+                Add Item
+              </button>
             </form>
             <br />
             {/* <div className="wrapper">  */}
@@ -123,11 +137,22 @@ class Main extends Component {
             ) : (
               <button onClick={this.login}>Log In</button>
             )}
-            {/* </div> */}
           </section>
 
           <section className="display-item">
             <div className="wrapper">
+              <p>
+                Logged in as:{" "}
+                {this.state.user.email ? this.state.user.email : "Stranger"}
+              </p>
+
+              {!this.state.user.email && (
+                <p>
+                  Need to login using your gmail to add an item. You will be the
+                  only authorized person to remove that item while everyone else
+                  is able to only read it.
+                </p>
+              )}
               <ul>
                 {this.state.items.map(item => {
                   return (
