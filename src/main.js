@@ -148,9 +148,9 @@ class Main extends Component {
 
               {!this.state.user.email && (
                 <p>
-                  Need to login using your gmail to add an item. You will be the
-                  only authorized person to remove that item while everyone else
-                  is able to only read it.
+                  <b>Need to LogIn</b> using your gmail to add an item. You will
+                  be the only authorized person to remove that item while
+                  everyone else is able to only read it.
                 </p>
               )}
               <ul>
